@@ -78,27 +78,8 @@ function SignIn() {
           className="w-full p-2 mb-3 border rounded"
           required
         />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full flex justify-center items-center gap-2 p-2 rounded text-white ${
-            loading
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
-          }`}
-        >
-          {loading ? (
-            <>
-              <FaSpinner className="animate-spin" />
-              Signing in...
-            </>
-          ) : (
-            "Sign In"
-          )}
-        </button>
-
-        <div className="flex gap-2 mt-4">
+        {/* ✅ Sign in with Google */}
+        <div className="flex gap-2 mt-4 mb-3">
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -119,7 +100,7 @@ function SignIn() {
             )}
           </button>
 
-          <button
+          {/* <button
             type="button"
             onClick={handleGithubLogin}
             disabled={loading}
@@ -137,8 +118,27 @@ function SignIn() {
             ) : (
               "Sign in with GitHub"
             )}
-          </button>
+          </button> */}
         </div>
+        {/* ✅ Sign in */}
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full flex justify-center items-center gap-2 p-2 rounded text-white ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {loading ? (
+            <>
+              <FaSpinner className="animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            "Sign In"
+          )}
+        </button>
 
         <p className="text-center mt-4">
           Don't have an account?

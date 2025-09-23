@@ -27,15 +27,15 @@ export const CartProvider = ({ children }) => {
   }, [cart, user]);
 
   const addToCart = (product) => {
-    // ✅ منع الأدمن من إضافة منتجات
-    if (user.email === "ahmed@admin.com") {
-      alert("❌ Admin cannot add products to the cart!");
-      return;
-    }
     if (!user) {
       alert("❌ You must be logged in to add a product to the cart!");
       return;
     }
+    if (user.email === "ahmed@admin.com") {
+      alert("❌ Admin cannot add products to the cart!");
+      return;
+    }
+
     setCart((prev) => {
       const exists = prev.find((p) => p.id === product.id);
       if (exists) return prev; // موجود بالفعل

@@ -1,5 +1,6 @@
 // src/pages/About.jsx
 import { FaUtensils, FaLeaf, FaSmile } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function About() {
   return (
@@ -90,9 +91,14 @@ function About() {
           Whether you’re here for a family dinner or a casual lunch, we promise
           you’ll leave with a smile.
         </p>
-        <button className="mt-6 bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
-          Explore Our Menu
-        </button>
+        <div className="mt-6">
+          <Link
+            to={"/shop"}
+            className=" bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition"
+          >
+            Explore Our Menu
+          </Link>
+        </div>
       </section>
     </div>
   );

@@ -230,6 +230,9 @@ function MyNav() {
       <Link to="/displayProducts" className="hover:text-green-600">
         Manage Products
       </Link>
+      {/* <Link to="/manageUsers" className="hover:text-green-600">
+        Manage Users
+      </Link> */}
     </>
   );
 

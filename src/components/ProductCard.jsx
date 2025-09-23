@@ -15,7 +15,7 @@ const ProductCard = ({ item, addToCart }) => {
         <img
           src={item.image}
           alt={item.name}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 rounded-md object-cover"
         />
         <div className="py-4">
           <h2 className="text-lg font-semibold text-gray-800 truncate">

@@ -7,8 +7,8 @@ import { useCart } from "../context/CartContext";
 function Shop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1); // ✅ الصفحة الحالية
-  const productsPerPage = 6; // ✅ عدد المنتجات في الصفحة
+  const [currentPage, setCurrentPage] = useState(1); // current page
+  const productsPerPage = 6; // number of products per page
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function Shop() {
     fetchProducts();
   }, []);
 
-  // ✅ حساب المنتجات لكل صفحة
+  // calculate pagination for every page
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(

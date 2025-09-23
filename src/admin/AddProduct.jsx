@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
 import { supabase } from "../supabaseClient";
+import { FaSpinner } from "react-icons/fa"; // أيقونة التحميل
 
-const UpdateProduct = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const AddProduct = () => {
+  const fileInputRef = useRef();
+
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -12,34 +12,12 @@ const UpdateProduct = () => {
     description: "",
     image: null,
   });
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error) {
-        alert("❌ Error fetching product: " + error.message);
-      } else {
-        setFormData({
-          name: data.name,
-          price: data.price,
-          category: data.category,
-          description: data.description,
-          image: data.image || null, // الرابط الحالي للصورة
-        });
-      }
-      setLoading(false);
-    };
-    fetchProduct();
-  }, [id]);
+  const [loading, setLoading] = useState(false); // 🔹 حالة التحميل
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "image" && files?.length) {
+    if (name === "image") {
       setFormData({ ...formData, image: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -48,15 +26,24 @@ const UpdateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      let imageUrl = formData.image;
+    setLoading(true); // 🔹 بدء التحميل
 
-      // إذا المستخدم اختار صورة جديدة (File)
-      if (formData.image instanceof File) {
-        const filePath = `${Date.now()}_${formData.image.name}`;
+    try {
+      let imageUrl = null;
+
+      if (formData.image) {
+        const file = formData.image;
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert("❌ Image is too large (max 5MB)");
+          setLoading(false);
+          return;
+        }
+
+        const filePath = `${Date.now()}_${file.name}`;
         const { error: uploadError } = await supabase.storage
           .from("products")
-          .upload(filePath, formData.image);
+          .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
@@ -67,32 +54,41 @@ const UpdateProduct = () => {
         imageUrl = publicUrlData.publicUrl;
       }
 
-      const { error } = await supabase
-        .from("products")
-        .update({
+      const { error: insertError } = await supabase.from("products").insert([
+        {
           name: formData.name,
           price: formData.price,
           category: formData.category,
           description: formData.description,
           image: imageUrl,
-        })
-        .eq("id", id);
+        },
+      ]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      alert("✅ Product updated successfully!");
-      navigate("/products");
+      alert("✅ Product added successfully!");
+
+      // Reset form
+      setFormData({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        image: null,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = null;
     } catch (err) {
-      alert("❌ Error updating product: " + err.message);
+      console.error("Error details:", err);
+      alert("❌ Error adding product: " + err.message);
+    } finally {
+      setLoading(false); // 🔹 انتهاء التحميل
     }
   };
-
-  if (loading) return <p className="text-center">Loading product...</p>;
 
   return (
     <div className="flex justify-center items-center min-h-screen">
       <form onSubmit={handleSubmit} className="w-[500px] p-4 border rounded">
-        <h2 className="text-xl font-bold mb-4">Update Product</h2>
+        <h2 className="text-xl font-bold mb-4">Add Product</h2>
 
         <input
           type="text"
@@ -138,27 +134,22 @@ const UpdateProduct = () => {
           type="file"
           name="image"
           accept="image/*"
+          ref={fileInputRef}
           onChange={handleChange}
           className="block w-full mb-2"
         />
 
-        {formData.image && (
-          <img
-            src={formData.image}
-            alt="Product"
-            className="w-24 h-24 object-cover mt-2"
-          />
-        )}
-
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+          className="bg-blue-600 text-white px-4 py-2 rounded flex items-center justify-center gap-2"
+          disabled={loading} // 🔹 يمنع الضغط أثناء التحميل
         >
-          Update Product
+          {loading && <FaSpinner className="animate-spin" />}
+          {loading ? "Saving..." : "Save Product"}
         </button>
       </form>
     </div>
   );
 };
 
-export default UpdateProduct;
+export default AddProduct;
