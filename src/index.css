@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* ===== Pagination Dots ===== */
+/* غيّر مكان الأسهم */
+.swiper-button-next,
+.swiper-button-prev {
+  top: 40%; /* نزّلها شوية من النص */
+  width: 40px;
+  height: 40px;
+  background: white; /* خلفية بيضا */
+  border-radius: 9999px; /* دائرية */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  color: #16a34a; /* أخضر */
+}
+
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 18px; /* صغّر السهم */
+  font-weight: bold;
+}
