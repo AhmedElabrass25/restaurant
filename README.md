@@ -1,7 +1,7 @@
 # 🍽️ My Restaurant
 
 My Restaurant is a modern web application for browsing and ordering food online.  
-It includes product listing, detailed product view, cart management, authentication, and order tracking.
+It includes product listing, detailed product view, cart management, authentication, order tracking, and an **admin dashboard** for managing products.
 
 ---
 
@@ -17,6 +17,10 @@ It includes product listing, detailed product view, cart management, authenticat
 - 🔑 **Authentication** – Signin / Signup using Supabase.
 - 🎨 **UI & Styling** – Tailwind CSS with React Icons and Swiper.
 - ⚡ **State Management** – Context API for managing global state.
+- 🛠️ **Admin Dashboard** – Manage products:
+  - ➕ Add Product
+  - 📋 Display All Products
+  - ✏️ Update Product
 
 ---
 
@@ -36,13 +40,16 @@ It includes product listing, detailed product view, cart management, authenticat
 my-restaurant/
 │
 ├── src/
+│ ├── admin/ # ⚡ Admin Dashboard
+│ │ ├── AddProduct.jsx
+│ │ ├── DisplayProducts.jsx
+│ │ └── UpdateProduct.jsx
+│ │
 │ ├── auth/
 │ │ ├── Signin.jsx
 │ │ └── Signup.jsx
 │ │
 │ ├── components/
-│ │ ├── AddProduct.jsx
-│ │ ├── DisplayProducts.jsx
 │ │ ├── MyNav.jsx
 │ │ ├── ProductCard.jsx
 │ │ ├── ProtectRoute.jsx

@@ -41,8 +41,30 @@ const DisplayProducts = () => {
     }
   };
 
+  // ✅ Skeleton Loader
+  const SkeletonCard = () => (
+    <div className="border rounded-lg p-4 shadow animate-pulse flex flex-col">
+      <div className="w-full h-40 bg-gray-300 rounded"></div>
+      <div className="h-4 bg-gray-300 rounded mt-3 w-3/4"></div>
+      <div className="h-4 bg-gray-200 rounded mt-2 w-1/2"></div>
+      <div className="mt-auto flex gap-2 mt-4">
+        <div className="flex-1 h-8 bg-gray-300 rounded"></div>
+        <div className="flex-1 h-8 bg-gray-300 rounded"></div>
+      </div>
+    </div>
+  );
+
   if (loading) {
-    return <p className="text-center">Loading products...</p>;
+    return (
+      <div className="min-h-screen p-6">
+        <h2 className="text-2xl font-bold mb-4 text-center">All Products</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <SkeletonCard key={idx} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

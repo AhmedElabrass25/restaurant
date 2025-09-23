@@ -8,7 +8,11 @@ function Footer() {
       <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Logo & About */}
         <div>
-          <h2 className="text-2xl font-bold text-green-500">🍽️ MyRestaurant</h2>
+          <Link to="/">
+            <h2 className="text-2xl font-bold text-green-500">
+              🍽️ MyRestaurant
+            </h2>
+          </Link>
           <p className="mt-3 text-gray-400">
             Delicious meals delivered with love. Enjoy the best dining
             experience with us.
