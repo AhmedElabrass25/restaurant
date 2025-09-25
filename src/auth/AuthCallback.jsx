@@ -24,6 +24,6 @@ function AuthCallback() {
     handleAuth();
   }, [navigate]);
 
-  return <p>Signing you in...</p>;
+  return <p>Signing you in.....</p>;
 }
 export default AuthCallback;
