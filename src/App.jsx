@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import AddProduct from "./admin/AddProduct";
 import DisplayProducts from "./admin/DisplayProducts";
 import UpdateProduct from "./admin/UpdateProduct";
+import AuthCallback from "./auth/AuthCallback";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/productDetails/:id" element={<ProductDetails />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Protected User Pages */}
             <Route
