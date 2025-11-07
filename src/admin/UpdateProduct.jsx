@@ -1,72 +1,66 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import { FaSpinner } from "react-icons/fa";
+import Swal from "sweetalert2";
+import { FaSpinner, FaUpload } from "react-icons/fa";
 
 const UpdateProduct = () => {
-  const { id } = useParams(); // get product id from URL
-  const navigate = useNavigate(); // for redirecting after update
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  // state for the form
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     category: "",
     description: "",
-    image: null, // can be a file or a URL
+    image: null,
   });
 
-  const [loading, setLoading] = useState(true); // loading product data
-  const [btnLoading, setBtnLoading] = useState(false); // loading state for update button
+  const [loading, setLoading] = useState(true);
+  const [btnLoading, setBtnLoading] = useState(false);
 
-  // fetch product data from supabase when component mounts
   useEffect(() => {
     const fetchProduct = async () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("id", id)
-        .single(); // get single product by id
+        .single();
 
       if (error) {
-        alert("Error fetching product: " + error.message);
+        Swal.fire("❌ Error", error.message, "error");
       } else {
-        // fill form with existing product data
         setFormData({
           name: data.name,
           price: data.price,
           category: data.category,
           description: data.description,
-          image: data.image || null, // existing image URL
+          image: data.image || null,
         });
       }
-      setLoading(false); // stop loading
+      setLoading(false);
     };
 
     fetchProduct();
   }, [id]);
 
-  // handle form input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image" && files?.length) {
-      // if a new image is selected, save the file
       setFormData({ ...formData, image: files[0] });
     } else {
-      // update other fields
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  // handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setBtnLoading(true); // show spinner on button
+    setBtnLoading(true);
 
     try {
       let imageUrl = formData.image;
 
-      // if user selected a new image, upload it to supabase storage
+      // Upload new image if changed
       if (formData.image instanceof File) {
         const filePath = `${Date.now()}_${formData.image.name}`;
         const { error: uploadError } = await supabase.storage
@@ -79,10 +73,9 @@ const UpdateProduct = () => {
           .from("products")
           .getPublicUrl(filePath);
 
-        imageUrl = publicUrlData.publicUrl; // use the uploaded image URL
+        imageUrl = publicUrlData.publicUrl;
       }
 
-      // update product in supabase table
       const { error } = await supabase
         .from("products")
         .update({
@@ -96,99 +89,134 @@ const UpdateProduct = () => {
 
       if (error) throw error;
 
-      alert("Product updated successfully!"); // notify user
-      navigate("/displayProducts"); // redirect to products page
+      await Swal.fire({
+        icon: "success",
+        title: "✅ Product Updated!",
+        text: "The product has been updated successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+        background: "#f0fdf4",
+        color: "#166534",
+      });
+
+      navigate("/displayProducts");
     } catch (err) {
-      alert("Error updating product: " + err.message); // show error
+      Swal.fire("❌ Error", err.message, "error");
     } finally {
-      setBtnLoading(false); // hide spinner
+      setBtnLoading(false);
     }
   };
 
-  if (loading) return <p className="text-center">Loading product...</p>; // show loading text
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen text-lg font-semibold text-gray-600">
+        Loading product...
+      </div>
+    );
 
-  // determine image preview source
   const previewSrc =
     formData.image instanceof File
       ? URL.createObjectURL(formData.image)
       : formData.image;
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <form onSubmit={handleSubmit} className="w-[500px] p-4 border rounded">
-        <h2 className="text-xl font-bold mb-4">Update Product</h2>
+    <div className="flex justify-center items-center min-h-screen p-6 bg-gray-50">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg border border-gray-100"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center text-green-700">
+          🍀 Update Product
+        </h2>
 
-        {/* Product Name */}
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
-
-        {/* Price */}
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
-
-        {/* Category */}
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
-
-        {/* Description */}
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          rows="3"
-          required
-        ></textarea>
-
-        {/* Image input */}
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleChange}
-          className="block w-full mb-2"
-        />
-
-        {/* Image preview */}
-        {formData.image && (
-          <img
-            src={previewSrc}
-            alt="Product"
-            className="w-24 h-24 object-cover mt-2"
+        <div className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-md p-2 outline-none transition"
+            required
           />
-        )}
 
-        {/* Update button with spinner */}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-2 flex items-center justify-center gap-2"
-          disabled={btnLoading} // disable button when updating
-        >
-          {btnLoading && <FaSpinner className="animate-spin" />}
-          {btnLoading ? "Updating..." : "Update Product"}
-        </button>
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={formData.price}
+            onChange={handleChange}
+            className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-md p-2 outline-none transition"
+            required
+          />
+
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-md p-2 outline-none transition"
+            required
+          />
+
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="3"
+            className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-md p-2 outline-none transition resize-none"
+            required
+          ></textarea>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Product Image
+            </label>
+            <div className="flex items-center gap-3">
+              <label
+                htmlFor="fileUpload"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 transition"
+              >
+                <FaUpload /> Upload Image
+              </label>
+              <input
+                id="fileUpload"
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                className="hidden"
+              />
+              {formData.image && (
+                <span className="text-sm text-gray-600 truncate">
+                  {formData.image.name || "Existing image selected"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {previewSrc && (
+            <div className="flex justify-center mt-4">
+              <img
+                src={previewSrc}
+                alt="Preview"
+                className="w-28 h-28 object-cover rounded-lg shadow-md border border-gray-200"
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={btnLoading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-md transition flex items-center justify-center gap-2 shadow-md"
+          >
+            {btnLoading && <FaSpinner className="animate-spin" />}
+            {btnLoading ? "Updating..." : "Update Product"}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import Pagination from "./Pagination";
+import FilterCategory from "./FilterCategory";
+import Search from "./Search";
+import SkeletonCard from "./SkeletonCard";
+import CardProduct from "./CardProduct";
+
+const ITEMS_PER_PAGE = 8;
 
 const DisplayProducts = () => {
   const [products, setProducts] = useState([]);
+  const [displayed, setDisplayed] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
 
+  // ✅ Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -16,9 +28,10 @@ const DisplayProducts = () => {
         .order("id", { ascending: false });
 
       if (error) {
-        console.error("Error fetching products:", error.message);
+        Swal.fire("❌ Error", error.message, "error");
       } else {
         setProducts(data);
+        setCategories(["All", ...new Set(data.map((p) => p.category))]);
       }
 
       setLoading(false);
@@ -27,37 +40,62 @@ const DisplayProducts = () => {
     fetchProducts();
   }, []);
 
+  // ✅ Filter & search logic
+  useEffect(() => {
+    let filtered = products;
+
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((p) => p.category === selectedCategory);
+    }
+
+    if (searchTerm.trim()) {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    setDisplayed(paginated);
+  }, [products, selectedCategory, searchTerm, page]);
+
   // ✅ Delete product
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This product will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
 
     const { error } = await supabase.from("products").delete().eq("id", id);
+
     if (error) {
-      alert("❌ Error deleting product: " + error.message);
+      Swal.fire("❌ Error", error.message, "error");
     } else {
-      alert("✅ Product deleted successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Product deleted successfully.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       setProducts(products.filter((p) => p.id !== id));
     }
   };
 
-  // ✅ Skeleton Loader
-  const SkeletonCard = () => (
-    <div className="border rounded-lg p-4 shadow animate-pulse flex flex-col">
-      <div className="w-full h-40 bg-gray-300 rounded"></div>
-      <div className="h-4 bg-gray-300 rounded mt-3 w-3/4"></div>
-      <div className="h-4 bg-gray-200 rounded mt-2 w-1/2"></div>
-      <div className="mt-auto flex gap-2 mt-4">
-        <div className="flex-1 h-8 bg-gray-300 rounded"></div>
-        <div className="flex-1 h-8 bg-gray-300 rounded"></div>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
-      <div className="min-h-screen p-6">
-        <h2 className="text-2xl font-bold mb-4 text-center">All Products</h2>
+      <div className="min-h-screen p-6 bg-gray-50">
+        <h2 className="text-2xl font-bold mb-6 text-center text-green-700">
+          🍀 All Products
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, idx) => (
             <SkeletonCard key={idx} />
@@ -68,46 +106,54 @@ const DisplayProducts = () => {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">All Products</h2>
-      {products.length === 0 ? (
-        <p className="text-center">No products found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="border rounded-lg p-4 shadow hover:shadow-lg transition flex flex-col"
-            >
-              {product.image && (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-40 object-cover rounded"
-                />
-              )}
-              <h3 className="text-lg font-semibold mt-2">{product.name}</h3>
-              <p className="text-gray-600 mb-2">${product.price}</p>
+    <div className="min-h-screen p-6 bg-gray-50">
+      <h2 className="text-2xl font-bold mb-6 text-center text-green-700">
+        🍀 All Products
+      </h2>
+      <div className="container">
+        {/* 🔍 Filters */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          {/* Search */}
+          <Search
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            setPage={setPage}
+          />
 
-              {/* Buttons */}
-              <div className="mt-auto flex gap-2">
-                <button
-                  className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600"
-                  onClick={() => navigate(`/updateProduct/${product.id}`)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600"
-                  onClick={() => handleDelete(product.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+          {/* Category Filter */}
+          <FilterCategory
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            setPage={setPage}
+            categories={categories}
+          />
         </div>
-      )}
+
+        {/* 🛒 Product List */}
+        {displayed.length === 0 ? (
+          <p className="text-center text-gray-600">No products found.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {displayed.map((product) => (
+              <CardProduct
+                key={product.id}
+                product={product}
+                handleDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 📄 Pagination */}
+        <Pagination
+          page={page}
+          setPage={setPage}
+          products={products}
+          selectedCategory={selectedCategory}
+          searchTerm={searchTerm}
+          ITEMS_PER_PAGE={ITEMS_PER_PAGE}
+        />
+      </div>
     </div>
   );
 };

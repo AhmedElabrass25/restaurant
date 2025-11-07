@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { supabase } from "../supabaseClient";
-import { FaSpinner } from "react-icons/fa"; // أيقونة التحميل
+import { FaSpinner, FaUpload } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const AddProduct = () => {
   const fileInputRef = useRef();
@@ -13,7 +14,7 @@ const AddProduct = () => {
     image: null,
   });
 
-  const [loading, setLoading] = useState(false); // 🔹 حالة التحميل
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -26,7 +27,7 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // 🔹 بدء التحميل
+    setLoading(true);
 
     try {
       let imageUrl = null;
@@ -35,7 +36,7 @@ const AddProduct = () => {
         const file = formData.image;
 
         if (file.size > 5 * 1024 * 1024) {
-          alert("❌ Image is too large (max 5MB)");
+          Swal.fire("⚠️ Too Large!", "Image size must be under 5MB", "warning");
           setLoading(false);
           return;
         }
@@ -66,9 +67,14 @@ const AddProduct = () => {
 
       if (insertError) throw insertError;
 
-      alert("✅ Product added successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "✅ Product Added!",
+        text: `${formData.name} has been added successfully.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
-      // Reset form
       setFormData({
         name: "",
         price: "",
@@ -79,75 +85,133 @@ const AddProduct = () => {
       if (fileInputRef.current) fileInputRef.current.value = null;
     } catch (err) {
       console.error("Error details:", err);
-      alert("❌ Error adding product: " + err.message);
+      Swal.fire({
+        icon: "error",
+        title: "❌ Error Adding Product",
+        text: err.message,
+      });
     } finally {
-      setLoading(false); // 🔹 انتهاء التحميل
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <form onSubmit={handleSubmit} className="w-[500px] p-4 border rounded">
-        <h2 className="text-xl font-bold mb-4">Add Product</h2>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center text-green-700 mb-6">
+          Add New Product
+        </h2>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Product Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+              placeholder="Enter product name"
+              required
+            />
+          </div>
 
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
+          {/* Price */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Price ($)
+            </label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+              placeholder="Enter price"
+              required
+            />
+          </div>
 
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          required
-        />
+          {/* Category */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Category
+            </label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+              placeholder="e.g. Pizza, Drinks, Dessert..."
+              required
+            />
+          </div>
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="block w-full border p-2 mb-2"
-          rows="3"
-          required
-        ></textarea>
+          {/* Description */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none resize-none"
+              placeholder="Enter short description..."
+              rows="3"
+              required
+            ></textarea>
+          </div>
 
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleChange}
-          className="block w-full mb-2"
-        />
+          {/* Image Upload */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Product Image
+            </label>
+            <div className="flex items-center gap-3">
+              <label
+                htmlFor="fileUpload"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700 transition"
+              >
+                <FaUpload /> Upload Image
+              </label>
+              <input
+                id="fileUpload"
+                type="file"
+                name="image"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleChange}
+                className="hidden"
+              />
+              {formData.image && (
+                <span className="text-sm text-gray-600 truncate">
+                  {formData.image.name}
+                </span>
+              )}
+            </div>
+          </div>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded flex items-center justify-center gap-2"
-          disabled={loading} // 🔹 يمنع الضغط أثناء التحميل
-        >
-          {loading && <FaSpinner className="animate-spin" />}
-          {loading ? "Saving..." : "Save Product"}
-        </button>
-      </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2 hover:bg-green-700 transition disabled:opacity-70"
+          >
+            {loading ? (
+              <>
+                <FaSpinner className="animate-spin" /> Saving...
+              </>
+            ) : (
+              "Save Product"
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

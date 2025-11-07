@@ -14,9 +14,16 @@
   color: #16a34a; /* أخضر */
 }
 
-
 .swiper-button-next:after,
 .swiper-button-prev:after {
   font-size: 18px; /* صغّر السهم */
   font-weight: bold;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* background: #750505; */
 }

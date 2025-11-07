@@ -1,6 +1,5 @@
 import React from "react";
 import { useCart } from "../context/CartContext";
-import { section } from "framer-motion/client";
 import { Link } from "react-router-dom";
 
 const Cart = () => {
@@ -10,12 +9,14 @@ const Cart = () => {
   const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
 
   return (
-    <section>
-      <div className="container mt-10 px-4">
+    <section className="pb-10">
+      <div className="container mt-10">
         <h2 className="text-3xl text-center font-bold mb-6">🛒 Your Cart</h2>
 
         {cart.length === 0 ? (
-          <p className="text-gray-600 text-3xl">Your cart is empty.</p>
+          <p className="text-gray-600 text-center text-3xl pb-6 ">
+            Your cart is empty.
+          </p>
         ) : (
           <div className="space-y-4">
             {cart.map((item) => (

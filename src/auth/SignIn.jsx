@@ -2,39 +2,77 @@ import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { FaSpinner } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [gloading, setgLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // ✅ تسجيل الدخول من Supabase مباشرة
+    // login user with email and password
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    // if (error) {
+    //   alert(error.message);
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // // register admin
+    // if (
+    //   data.user.email === "ahmed@admin.com" &&
+    //   data.user.password === "admin"
+    // ) {
+    //   alert("Welcome Admin!");
+    //   navigate("/addProduct");
+    // } else {
+    //   // login user
+    //   alert("Logged in successfully!");
+    //   navigate("/addProduct");
+    // }
     if (error) {
-      alert(error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: error.message,
+        confirmButtonColor: "#ef4444", // red
+      });
       setLoading(false);
       return;
     }
 
-    // ✅ لو أدمن
+    // register admin
     if (
       data.user.email === "ahmed@admin.com" &&
       data.user.password === "admin"
     ) {
-      alert("Welcome Admin!");
+      Swal.fire({
+        icon: "success",
+        title: "Welcome Admin!",
+        text: "Redirecting to your dashboard...",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       navigate("/addProduct");
     } else {
-      // ✅ مستخدم عادي
-      alert("Logged in successfully!");
+      // login user
+      Swal.fire({
+        icon: "success",
+        title: "Logged in successfully!",
+        text: "Welcome back!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       navigate("/addProduct");
     }
 
@@ -42,16 +80,16 @@ function SignIn() {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    setgLoading(true);
     await supabase.auth.signInWithOAuth({ provider: "google" });
-    setLoading(false);
+    setgLoading(false);
   };
 
-  const handleGithubLogin = async () => {
-    setLoading(true);
-    await supabase.auth.signInWithOAuth({ provider: "github" });
-    setLoading(false);
-  };
+  // const handleGithubLogin = async () => {
+  //   setLoading(true);
+  //   await supabase.auth.signInWithOAuth({ provider: "github" });
+  //   setLoading(false);
+  // };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -90,7 +128,7 @@ function SignIn() {
                 : "bg-red-500 hover:bg-red-600"
             }`}
           >
-            {loading ? (
+            {gloading ? (
               <>
                 <FaSpinner className="animate-spin" />
                 Loading...
@@ -99,26 +137,6 @@ function SignIn() {
               "Sign in with Google"
             )}
           </button>
-
-          {/* <button
-            type="button"
-            onClick={handleGithubLogin}
-            disabled={loading}
-            className={`w-1/2 flex justify-center items-center gap-2 p-2 rounded text-white ${
-              loading
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-gray-800 hover:bg-gray-900"
-            }`}
-          >
-            {loading ? (
-              <>
-                <FaSpinner className="animate-spin" />
-                Loading...
-              </>
-            ) : (
-              "Sign in with GitHub"
-            )}
-          </button> */}
         </div>
         {/* ✅ Sign in */}
         <button

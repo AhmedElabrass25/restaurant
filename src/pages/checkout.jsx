@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { supabase } from "../supabaseClient"; // ⬅️ make sure you have supabase client setup
 import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 function Checkout() {
   const { cart, clearCart } = useCart();
@@ -24,22 +25,37 @@ function Checkout() {
     getUser();
   }, []);
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
-    0
+  const total = Number(
+    cart
+      .reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
+      .toFixed(2)
   );
 
+  console.log(total);
   const handleCheckout = async (e) => {
     e.preventDefault();
 
     // ✅ Simple validation
+
     if (!customerName.trim() || !customerEmail.trim() || !address.trim()) {
-      alert("❌ All fields are required!");
+      Swal.fire({
+        icon: "error",
+        title: "❌ Missing Information",
+        text: "All fields are required!",
+        confirmButtonColor: "#dc2626", // Red
+        background: "#fff",
+      });
       return;
     }
 
     if (cart.length === 0) {
-      alert("❌ Cart is empty!");
+      Swal.fire({
+        icon: "error",
+        title: "❌ Empty Cart",
+        text: "Your cart is empty!",
+        confirmButtonColor: "#dc2626",
+        background: "#fff",
+      });
       return;
     }
 
@@ -115,7 +131,7 @@ function Checkout() {
         ></textarea>
 
         <div className="text-right font-bold text-lg">
-          Total: <span className="text-green-600">${total.toFixed(2)}</span>
+          Total: <span className="text-green-600">$ {total.toFixed(2)}</span>
         </div>
 
         <button

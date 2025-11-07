@@ -6,8 +6,6 @@ import SignUp from "./auth/SignUp";
 import MyNav from "./components/MyNav";
 import ProtectRoute from "./components/ProtectRoute";
 import PublicRoute from "./components/PublicRoute";
-// import AddProduct from "./components/AddProduct";
-// import DisplayProducts from "./components/DisplayProducts";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Shop from "./pages/Shop";
@@ -18,8 +16,6 @@ import { CartProvider } from "./context/CartContext";
 import Checkout from "./pages/checkout";
 import MyOrders from "./pages/MyOrders";
 import ProductDetails from "./pages/ProductDetails";
-// import UpdateProduct from "./pages/UpdateProduct";
-// import ManageUsers from "./pages/ManageUsers";
 import NotFound from "./pages/NotFound";
 import AddProduct from "./admin/AddProduct";
 import DisplayProducts from "./admin/DisplayProducts";
@@ -84,14 +80,6 @@ function App() {
                 </ProtectRoute>
               }
             />
-            {/* <Route
-              path="/manageUsers"
-              element={
-                <ProtectRoute adminOnly={true}>
-                  <ManageUsers />
-                </ProtectRoute>
-              }
-            /> */}
             <Route
               path="/updateProduct/:id"
               element={
