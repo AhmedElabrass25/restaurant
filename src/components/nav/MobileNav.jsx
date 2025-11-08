@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const MobileNav = ({
   isOpen,
@@ -24,7 +25,7 @@ const MobileNav = ({
               Logout
             </button>
           ) : (
-            <div className="space-y-2">
+            <div className="flex items-center gap-2">
               <Link
                 to="/signin"
                 className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"

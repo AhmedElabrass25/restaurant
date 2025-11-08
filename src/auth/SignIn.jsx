@@ -21,25 +21,6 @@ function SignIn() {
       email,
       password,
     });
-
-    // if (error) {
-    //   alert(error.message);
-    //   setLoading(false);
-    //   return;
-    // }
-
-    // // register admin
-    // if (
-    //   data.user.email === "ahmed@admin.com" &&
-    //   data.user.password === "admin"
-    // ) {
-    //   alert("Welcome Admin!");
-    //   navigate("/addProduct");
-    // } else {
-    //   // login user
-    //   alert("Logged in successfully!");
-    //   navigate("/addProduct");
-    // }
     if (error) {
       Swal.fire({
         icon: "error",
@@ -84,12 +65,6 @@ function SignIn() {
     await supabase.auth.signInWithOAuth({ provider: "google" });
     setgLoading(false);
   };
-
-  // const handleGithubLogin = async () => {
-  //   setLoading(true);
-  //   await supabase.auth.signInWithOAuth({ provider: "github" });
-  //   setLoading(false);
-  // };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -144,8 +119,8 @@ function SignIn() {
           disabled={loading}
           className={`w-full flex justify-center items-center gap-2 p-2 rounded text-white ${
             loading
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
+              ? "bg-green-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
           }`}
         >
           {loading ? (
